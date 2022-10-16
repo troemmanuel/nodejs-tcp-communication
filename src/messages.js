@@ -1,13 +1,13 @@
 const {CLIENT_REQUEST} = require('../src/message-types');
-const readline = require('readline');
+//const readline = require('readline');
 
 // initialise readline
-const editor = readline.createInterface(process.stdin, process.stdout);
+//const editor = readline.createInterface(process.stdin, process.stdout);
 
 /**
  * Send a private message to a specific user from client
  */
-exports.send =function (client, username) {
+exports.send =function (client, username, editor) {
     editor.question('Receiver:', (name) => {
         console.log('YOU WILL SEND A MESSAGE TO ' + name);
         const receiver = name;
@@ -26,7 +26,7 @@ exports.send =function (client, username) {
 /**
  * Send a broadcast message to all user
  */
-exports.broadcast  = function (client, username) {
+exports.broadcast  = function (client, username, editor) {
     editor.setPrompt(`Message to be sent: `);
     editor.prompt();
     editor.on('line', (msg) => {
