@@ -1,7 +1,5 @@
 // import module
 const net = require('net');
-require('dotenv').config({path: '../../.env'})
-
 const {SERVER_RESPONSE, NOTIFICATION} = require('../../src/message-types');
 
 // Create an instance of the server
@@ -10,10 +8,12 @@ const server = net.createServer(handleConnection);
 let sockets = [];
 const clients = new Map();
 
+const port = process.env.PORT  || 8080
+const host = process.env.HOST  || '127.0.0.1'
 
 // Start listening on PORT
-server.listen(process.env.PORT,process.env.HOST ,function(){
-    console.log(`Server is running on ${process.env.HOST}:${process.env.PORT}`);
+server.listen(port, host, function(){
+    console.log(`Server is running on ${host}:${port}`);
 });
 
 
@@ -68,14 +68,14 @@ function handleConnection(socket){
                     // send server response to sender
                     socket.write(JSON.stringify({
                         messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
-                        comment: `Received private message form '${sender_name}' to ${receiver_name} with message '${message_content}'`,
-                        type: "Server response"}, null, 2))
+                        comment: `your message has been sent successfully  to ${receiver_name} with message '${message_content}'`,
+                        type: SERVER_RESPONSE}, null, 2))
                     // send private message to client
                     console.log(`THE RECEIVER IS ${receiver_name}`);
                     const receiverSocket = clients.get(receiver_name);
                     receiverSocket.write(JSON.stringify({
                         messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
-                        comment: `You have received a private message form '${sender_name}': '${message_content}'`,
+                        comment: `You have received a private message from '${sender_name}': '${message_content}'`,
                         type: SERVER_RESPONSE}, null, 2))
                 }
                 break;
@@ -86,7 +86,7 @@ function handleConnection(socket){
                 sockets.forEach(user => {
                     user.write(JSON.stringify({
                         messageFormat: { from: sender_name,action:'server-broadcast', msg: message_content},
-                        comment: `Received broadcast message form '${sender_name}' with message '${message_content}'`,
+                        comment: `Received broadcast message from '${sender_name}' with message '${message_content}'`,
                         type: SERVER_RESPONSE}, null, 2))
 
                 });
