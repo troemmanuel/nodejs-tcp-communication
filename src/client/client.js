@@ -34,33 +34,42 @@ client.connect(process.env.PORT,async function(){
 });
 
 //Handle data coming from the server
-client.on('data',function(data){
+client.on('data',async function(data){
     console.log(`data received from server : ${data}`);
+    console.log(`=============  MENU ==================`);
+    console.log(`======================================`);
+    console.log(`======================================`);
+    console.log(`======================================`);
+    console.log(`======================================`);
+    console.log(`======================================`);
 
-    interface.question('What action do you want to do ? \n1. Send private message\n2. Send broadcast message \n3. List connected users\n4. Quit\n>>> ', (answer) => {
-        /**
-         * Triggered an action according what the user want to do on the server
-         * 1. Send Private message
-         * 2. Send broadCast message
-         * 3. List connected users
-         * 4. Quit server properly
-         */
-        switch(+answer){
-            case 1:
-                sendPrivateMessage(client, username);
-                break;
-            case 2:
-                sendBroadcastMessage(client, username);
-                break;
-            case 3:
-                listConnectedUser(client, username);
-                break;
-            case 4:
-                quit(client, username);
-                break;
-        }
-        // interface.close();
-    });
+    setTimeout(function (){
+        interface.question('What action do you want to do ? \n1. Send private message\n2. Send broadcast message \n3. List connected users\n4. Quit\n>>> ', (answer) => {
+            /**
+             * Triggered an action according what the user want to do on the server
+             * 1. Send Private message
+             * 2. Send broadCast message
+             * 3. List connected users
+             * 4. Quit server properly
+             */
+            switch(+answer){
+                case 1:
+                    sendPrivateMessage(client, username);
+                    break;
+                case 2:
+                    sendBroadcastMessage(client, username);
+                    break;
+                case 3:
+                    listConnectedUser(client, username);
+                    break;
+                case 4:
+                    quit(client, username);
+                    break;
+            }
+            // interface.close();
+        });
+    }, 1000);
+
 
 });
 
@@ -77,17 +86,21 @@ client.on('error',function(error){
  * Send a private message to a specific user
  */
 function sendPrivateMessage(client, username) {
-    interface.setPrompt(`Message to be sent : `);
-    interface.prompt();
-    interface.on('line', (msg) => {
-        const sender = username ;
-        const receiver = 'kaz';
-        client.write(
-            JSON.stringify({
-                messageFormat: {from: sender, to: receiver, action:'client-send', msg},
-                comment: `${sender} envoie le message '${msg}' à ${receiver}`,
-                type: "Client request"}, null, 2));
-    })
+    interface.question('Receiver:', (name) => {
+        console.log('YOU WILL SEND A MESSAGE TO ' + name);
+        const receiver = name;
+        interface.setPrompt(`Message to be sent : `);
+        interface.prompt();
+        interface.on('line', (msg) => {
+            const sender = username ;
+            client.write(
+                JSON.stringify({
+                    messageFormat: {from: sender, to: receiver, action:'client-send', msg},
+                    comment: `${sender} envoie le message '${msg}' à ${receiver}`,
+                    type: "Client request"}, null, 2));
+        })
+    });
+
 }
 
 /**
