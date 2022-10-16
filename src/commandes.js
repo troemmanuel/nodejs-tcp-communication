@@ -20,10 +20,10 @@ exports.handleCommande = function (client, username){
          */
         switch(answer){
             case 's':
-                messages.send(client, username);
+                messages.send(client, username, editor);
                 break;
             case 'b':
-                messages.broadcast(client, username);
+                messages.broadcast(client, username, editor);
                 break;
             case 'ls':
                 messages.list(client, username);

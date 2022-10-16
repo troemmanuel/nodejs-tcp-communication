@@ -1,6 +1,5 @@
 // Get net module
 const net = require('net');
-require('dotenv').config({path: '../../.env'})
 const yargs = require('yargs');
 const commandes = require('../../src/commandes');
 
@@ -9,14 +8,16 @@ const commandes = require('../../src/commandes');
  * command to start project : node client.js add --name="david"
  * NB : name could be soro, pierre and other else
  */
-const username = yargs.argv.name !== undefined ? yargs.argv.name : 'annie';
+const username = yargs.argv.name !== undefined ? yargs.argv.name : process.env.USERNAME;
 
 
 const client = new net.Socket();
+const port = process.env.PORT || 8080
+const host = process.env.HOST || '127.0.0.1'
 
-client.connect(process.env.PORT,async function(){
+client.connect(port, host, function(){
     // Log when the connection is established
-    console.log(`Client is connected to server on port ${process.env.PORT}`);
+    console.log(`Client is connected to server on  ${host}:${port}`);
     // 1. Send message after connection establishment
     client.write(
         JSON.stringify({
