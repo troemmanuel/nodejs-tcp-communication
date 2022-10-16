@@ -38,8 +38,6 @@ function handleConnection(socket){
         // We add new client to client list
         clients.set(sender_name, socket);
 
-        console.log("Action to be perform", socket.address());
-
         // prepare and send a response to the client
         switch(action){
             case 'client-hello':
@@ -50,14 +48,31 @@ function handleConnection(socket){
                 break;
 
             case 'client-send':
-                socket.write(JSON.stringify({
-                    messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
-                    comment: `Received private message form '${sender_name}' to ${receiver_name} with message '${message_content}'`,
-                    type: "Server response"}, null, 2))
+                // when receiver is not connected
+                if (!clients.has(receiver_name)) {
+                    console.log(`THE RECEIVER IS NOT CONNECTED`);
+                    socket.write(JSON.stringify({
+                        messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
+                        comment: `Message not sent because receiver ${receiver_name} is not connected`,
+                        type: "Server response"}, null, 2))
+                } else {
+                    // send server response to sender
+                    socket.write(JSON.stringify({
+                        messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
+                        comment: `Received private message form '${sender_name}' to ${receiver_name} with message '${message_content}'`,
+                        type: "Server response"}, null, 2))
+                    // send private message to client
+                    console.log(`THE RECEIVER IS ${receiver_name}`);
+                    const receiverSocket = clients.get(receiver_name);
+                    receiverSocket.write(JSON.stringify({
+                        messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
+                        comment: `You have received a private message form '${sender_name}': '${message_content}'`,
+                        type: "Server response"}, null, 2))
+                }
                 break;
 
             case 'client-broadcast':
-                // In order to send broadcast message we are going to loop over all sockets store store
+                // In order to send broadcast message we are going to loop over all sockets store
                 // And send a message to each one
                 sockets.forEach(socket => {
                     socket.write(JSON.stringify({
