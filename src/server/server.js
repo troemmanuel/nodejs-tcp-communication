@@ -1,6 +1,7 @@
 // import module
 const net = require('net');
 const {SERVER_RESPONSE, NOTIFICATION} = require('../../src/message-types');
+const logger = require('../debuger');
 
 // Create an instance of the server
 const server = net.createServer(handleConnection);
@@ -13,7 +14,7 @@ const host = process.env.HOST  || '127.0.0.1'
 
 // Start listening on PORT
 server.listen(port, host, function(){
-    console.log(`Server is running on ${host}:${port}`);
+    logger.LOG(`Server is running on ${host}:${port}`);
 });
 
 
@@ -23,12 +24,12 @@ function handleConnection(socket){
     sockets.push(socket);
 
     // Log when a client connects.
-    console.log(`New client connection from ${socket.remoteAddress}:${socket.remotePort}`);
+    logger.LOG(`New client connection from ${socket.remoteAddress}:${socket.remotePort}`);
 
     // Handle the client data.
     socket.on('data',function(data){
         // Log data received from the client
-        console.log(`>> data received : ${data} `);
+        logger.LOG(`>> data received : ${data} `);
 
         const msg = JSON.parse(data);
         const sender_name = msg.messageFormat.from;
@@ -59,7 +60,7 @@ function handleConnection(socket){
             case 'client-send':
                 // when receiver is not connected
                 if (!clients.has(receiver_name)) {
-                    console.log(`THE RECEIVER IS NOT CONNECTED`);
+                    logger.LOG(`THE RECEIVER IS NOT CONNECTED`);
                     socket.write(JSON.stringify({
                         messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
                         comment: `Message not sent because receiver ${receiver_name} is not connected`,
@@ -71,7 +72,7 @@ function handleConnection(socket){
                         comment: `your message has been sent successfully  to ${receiver_name} with message '${message_content}'`,
                         type: SERVER_RESPONSE}, null, 2))
                     // send private message to client
-                    console.log(`THE RECEIVER IS ${receiver_name}`);
+                    logger.LOG(`THE RECEIVER IS ${receiver_name}`);
                     const receiverSocket = clients.get(receiver_name);
                     receiverSocket.write(JSON.stringify({
                         messageFormat: { from: sender_name,action:'server-private',  msg: message_content},
@@ -132,11 +133,11 @@ function handleConnection(socket){
 
     // Handle when client connection is closed
     socket.on('close',function(){
-        console.log(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
+        logger.LOG(`${socket.remoteAddress}:${socket.remotePort} Connection closed`);
     });
 
     // Handle Client connection error.
     socket.on('error',function(error){
-        console.error(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
+        logger.LOG(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
     });
 }
