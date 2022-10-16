@@ -41,10 +41,18 @@ function handleConnection(socket){
         // prepare and send a response to the client
         switch(action){
             case 'client-hello':
+                // send message to the connected client
                 socket.write(JSON.stringify({
                     messageFormat: {from: sender_name,action:'server-hello',  msg: message_content},
                     comment: `Acknowledge the connection of the client '${sender_name}' with a welcome message '${message_content}'`,
                     type: "Server response"}, null, 2))
+                // notify other clients
+                const otherUsers = sockets.filter(other => other !== socket);
+                otherUsers.forEach(socket => {
+                    socket.write(JSON.stringify({
+                        notification: `${sender_name} is connected`,
+                        type: "Notification"}, null, 2))
+                });
                 break;
 
             case 'client-send':
@@ -96,7 +104,7 @@ function handleConnection(socket){
                 break;
             case 'client-quit':
                 socket.write(JSON.stringify({
-                    messageFormat: { from: sender_name,action:'server-broadcast'},
+                    messageFormat: { from: sender_name,action:'server-quit'},
                     comment: `'${sender_name}' quit successfully the server`,
                     type: "Server response"}, null, 2));
                 // We delete client socket from sockets array
@@ -105,12 +113,20 @@ function handleConnection(socket){
                 // We remove client from client list
                 clients.get(sender_name);
                 clients.delete(sender_name);
+                // notify other clients
+                const otherClients = sockets.filter(other => other !== socket);
+                otherClients.forEach(socket => {
+                    socket.write(JSON.stringify({
+                        notification: `${sender_name} has quit the server`,
+                        type: "Notification"}, null, 2))
+                });
+                // close the connection
+                socket.end()
                 break;
         }
 
 
-        // close the connection
-        // socket.end()
+
     });
 
     // Handle when client connection is closed
