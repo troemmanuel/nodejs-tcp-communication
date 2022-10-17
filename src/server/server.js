@@ -138,6 +138,6 @@ function handleConnection(socket){
 
     // Handle Client connection error.
     socket.on('error',function(error){
-        logger.LOG(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
+        logger.ERROR(`${socket.remoteAddress}:${socket.remotePort} Connection Error ${error}`);
     });
 }
