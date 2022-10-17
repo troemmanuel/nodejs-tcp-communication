@@ -6,3 +6,9 @@ exports.LOG = function (...args){
         console.log(chalk.blue(`LOG (${new Date().toDateString()} ${new Date().getHours()} H ${new Date().getMinutes()} Min ${new Date().getSeconds()} sec) - ${args.join()}`));
     }
 }
+
+exports.ERROR = function (...args){
+    if(flag === true){
+        console.log(chalk.red(`ERROR (${new Date().toDateString()} ${new Date().getHours()} H ${new Date().getMinutes()} Min ${new Date().getSeconds()} sec) - ${args.join()}`));
+    }
+}
